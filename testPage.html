@@ -1,0 +1,170 @@
+<html>
+    <script>
+        //adds a row to the table of ID = responce_table
+        function addRow(){
+            const table = document.getElementById("responce_table");
+
+            //if there is no hidden element to unhide
+            if(getHiddenRow() == null){
+                const row = document.createElement("tr");
+
+                const relationship = document.createElement("td");
+                const name = document.createElement("td");
+                const value = document.createElement("td");
+                const why = document.createElement("td");
+                const explain = document.createElement("td");
+
+                const fill1 = document.createElement("textarea");
+                const fill2 = document.createElement("textarea");
+                const fill3 = document.createElement("textarea");
+
+                dropDown = document.getElementById("main_explaination");
+                dropDown = dropDown.cloneNode(1);
+
+                //assign these items to the hierarchy
+                relationship.appendChild(fill1);
+                name.appendChild(fill2);
+                explain.appendChild(fill3);
+                why.appendChild(dropDown);
+
+                row.appendChild(relationship);
+                row.appendChild(name);
+                row.appendChild(value);
+                row.appendChild(why);
+                row.appendChild(explain);
+
+                table.appendChild(row);
+            } else {
+                unhideRow();
+            }
+        }
+
+        //hides the bottom visible row of the table
+        function removeRow(){
+            const table = document.getElementById("responce_table");
+            var children = table.children;
+            for (var i = children.length - 1; i >= 0 ; i--) {
+                var tableChild = children[i];
+                // Do stuff
+                if(tableChild.getAttribute("hidden") == null){
+                    tableChild.setAttribute("hidden", 1);
+                    return 0;
+                }
+            }   
+        }
+
+        //returns a tr element if there is a hidden row. This element is the FIRST hidden row. 
+        //Otherwise, it returns NULL
+        function getHiddenRow(){
+            const table = document.getElementById("responce_table");
+            var children = table.children;
+            for (var i = 0; i < children.length; i++) {
+                var tableChild = children[i];
+                // Do stuff
+                if(tableChild.getAttribute("hidden") != null){
+                    return tableChild;
+                }
+            }   
+            return null;
+        }
+
+        //unhides the first hidden row
+        function unhideRow(){
+            const row = getHiddenRow();
+            row.removeAttribute("hidden");
+        }
+
+        function updateValue(formID, outputID){
+            var text = document.getElementById(formID).value;
+            document.getElementById(outputID).textContent = solve(text);
+        }
+
+        //updates all the user-defined variables
+        function updateVariables(){
+            var namers = document.getElementsByClassName("namer");
+            var vars = [...baseVariables];
+            for(var i = 0; i < namers.length; i++){
+                var namer = namers[i];
+                var value = -1;
+                vars.push([namer.value, value]);
+            }
+            console.log(vars);
+            variables = vars;
+        }
+
+       var baseVariables = [["v",60],["d",60]];
+       var variables = [["v",60],["d",60]];
+    </script>
+
+    <script src="scripts.js"></script>
+
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+    </head>
+
+    <body>
+        <p class="title">
+            This is a Mockup of a Potential Page
+        </p>
+
+        <p>
+            This project is an attempt to invent a new way to teach physics. The system works by first presenting useful information
+            in education pages, then to test it in review pages (like this one). The review pages present context (this part) and a 
+            problem (below) then the user has to answer it. This is done through the fillable section at the end.
+        </p>
+
+        <p class="question">
+            Alice throws a baseball forward at 60 MPH. Bob is waiting at the plate, 60 feet away. How long does it take for the ball 
+            to reach Bob?
+        </p>
+
+        <!--These are the things that the user can reference-->
+        <ul class="variable_list">
+            <li>v = 60 mph</li>
+            <li>d = 60 ft</li>
+        </ul>
+
+        <!--These are the actual lines to do work!-->
+        <table id="responce_table">
+            <tr>
+                <!--The user types in an equation-->
+                <th>Relationship</th>
+                <!--the output is stroed in this variable-->
+                <th>Value Name</th>
+                <!--This is the value of that variable-->
+                <th>Value</th>
+                <!--Select a rule that makes this make sense-->
+                <th>Why?</th>
+                <!--Use YOUR words-->
+                <th>Explain.</th>
+            </tr>
+            <tr>
+                <td>
+                    <textarea id="testarea" onkeyup="updateValue('testarea', 'outputZone')"></textarea>
+                </td>
+                <td>
+                    <textarea class="namer" onkeyup="updateVariables()"></textarea>
+                </td>
+                <td class="output" id="outputZone">
+                    1234
+                </td>
+                <td>
+                    <select id="main_explaination" name="explanations">
+                        <option value="volvo">Volvo</option>
+                        <option value="saab">Saab</option>
+                        <option value="mercedes">Mercedes</option>
+                        <option value="audi">Audi</option>
+                      </select>
+                </td>
+                <td>
+                    <textarea></textarea>
+                </td>
+            </tr>
+        </table>
+
+        <button class="add_row" id="add_row" onclick="addRow()">+</button>
+        <button class="remove_row" id="remove_row" onclick="removeRow()">-</button>
+        <button class="parse_row" id="parse_row" onclick="solve(document.getElementById('testarea').value)">parse</button>
+    </body>
+</html>
