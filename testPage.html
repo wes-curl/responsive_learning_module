@@ -78,9 +78,14 @@
             var vars = [...baseVariables];
             for(var i = 0; i < namers.length; i++){
                 var namer = namers[i];
-                var value = parseFloat(namer.parentElement.parentElement.childNodes[2].textContent);
-                vars.push([namer.value, value]);
+                var text = namer.parentElement.parentElement.children[1].children[0].value;
+                var value = namer.parentElement.parentElement.children[2].textContent;
+                if(text.length > 0){
+                    value = parseFloat(value);
+                    vars.push([namer.value, value]);
+                }
             }
+            console.log(vars);
             variables = vars;
         }
 
