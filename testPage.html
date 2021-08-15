@@ -6,34 +6,11 @@
 
             //if there is no hidden element to unhide
             if(getHiddenRow() == null){
-                const row = document.createElement("tr");
-
-                const relationship = document.createElement("td");
-                const name = document.createElement("td");
-                const value = document.createElement("td");
-                const why = document.createElement("td");
-                const explain = document.createElement("td");
-
-                const fill1 = document.createElement("textarea");
-                const fill2 = document.createElement("textarea");
-                const fill3 = document.createElement("textarea");
-
-                dropDown = document.getElementById("main_explaination");
-                dropDown = dropDown.cloneNode(1);
-
-                //assign these items to the hierarchy
-                relationship.appendChild(fill1);
-                name.appendChild(fill2);
-                explain.appendChild(fill3);
-                why.appendChild(dropDown);
-
-                row.appendChild(relationship);
-                row.appendChild(name);
-                row.appendChild(value);
-                row.appendChild(why);
-                row.appendChild(explain);
-
-                table.appendChild(row);
+                const row = document.getElementById("template");
+                let new_row = row.cloneNode(true);
+                new_row.removeAttribute("hidden");
+                new_row.id = "";
+                table.children[1].appendChild(new_row);
             } else {
                 unhideRow();
             }
@@ -42,7 +19,8 @@
         //hides the bottom visible row of the table
         function removeRow(){
             const table = document.getElementById("responce_table");
-            var children = table.children;
+            var children = table.children[1].children;
+            console.log(children);
             for (var i = children.length - 1; i >= 0 ; i--) {
                 var tableChild = children[i];
                 // Do stuff
@@ -57,15 +35,31 @@
         //Otherwise, it returns NULL
         function getHiddenRow(){
             const table = document.getElementById("responce_table");
-            var children = table.children;
+            var children = table.children[1].children;
             for (var i = 0; i < children.length; i++) {
                 var tableChild = children[i];
                 // Do stuff
-                if(tableChild.getAttribute("hidden") != null){
+                if(tableChild.getAttribute("hidden") != null && tableChild.id != "template"){
                     return tableChild;
                 }
             }   
             return null;
+        }
+
+        //returns the last unhidden row
+        function getRow(){
+            const table = document.getElementById("responce_table").childNodes[3];
+            var children = table.children;
+            var last = null;
+            for (var i = 0; i < children.length; i++) {
+                var tableChild = children[i];
+                // Do stuff
+                if(tableChild.getAttribute("hidden") == null && tableChild.tagName === "TR"){
+                    last = tableChild;
+                }
+            }   
+            
+            return last;
         }
 
         //unhides the first hidden row
@@ -74,21 +68,19 @@
             row.removeAttribute("hidden");
         }
 
-        function updateValue(formID, outputID){
-            var text = document.getElementById(formID).value;
-            document.getElementById(outputID).textContent = solve(text);
+        function updateValue(button, text){
+            button.parentElement.parentElement.children[2].textContent = solve(text);
         }
 
         //updates all the user-defined variables
         function updateVariables(){
-            var namers = document.getElementsByClassName("namer");
+            var namers = document.getElementsByClassName("variable_name");
             var vars = [...baseVariables];
             for(var i = 0; i < namers.length; i++){
                 var namer = namers[i];
-                var value = -1;
+                var value = parseFloat(namer.parentElement.parentElement.childNodes[2].textContent);
                 vars.push([namer.value, value]);
             }
-            console.log(vars);
             variables = vars;
         }
 
@@ -126,45 +118,77 @@
         </ul>
 
         <!--These are the actual lines to do work!-->
-        <table id="responce_table">
-            <tr>
-                <!--The user types in an equation-->
-                <th>Relationship</th>
-                <!--the output is stroed in this variable-->
-                <th>Value Name</th>
-                <!--This is the value of that variable-->
-                <th>Value</th>
-                <!--Select a rule that makes this make sense-->
-                <th>Why?</th>
-                <!--Use YOUR words-->
-                <th>Explain.</th>
-            </tr>
-            <tr>
-                <td>
-                    <textarea id="testarea" onkeyup="updateValue('testarea', 'outputZone')"></textarea>
-                </td>
-                <td>
-                    <textarea class="namer" onkeyup="updateVariables()"></textarea>
-                </td>
-                <td class="output" id="outputZone">
-                    1234
-                </td>
-                <td>
-                    <select id="main_explaination" name="explanations">
-                        <option value="volvo">Volvo</option>
-                        <option value="saab">Saab</option>
-                        <option value="mercedes">Mercedes</option>
-                        <option value="audi">Audi</option>
-                      </select>
-                </td>
-                <td>
-                    <textarea></textarea>
-                </td>
-            </tr>
+        <table id="responce_table"> 
+            <thead>
+                <tr>
+                    <!--The user types in an equation-->
+                    <th>Relationship</th>
+                    <!--the output is stroed in this variable-->
+                    <th>Value Name</th>
+                    <!--This is the value of that variable-->
+                    <th>Value</th>
+                    <!--Select a rule that makes this make sense-->
+                    <th>Why?</th>
+                    <!--Use YOUR words-->
+                    <th>Explain.</th>
+                </tr>
+            </thead>
+                <tbody>
+                <tr id="template" hidden="true">
+                    <td>
+                        <textarea class="relationship" onkeyup="updateValue(this, this.value)"></textarea>
+                    </td>
+                    <td>
+                        <textarea class="variable_name" onkeyup="updateVariables()"></textarea>
+                    </td>
+                    <td class="output" id="outputZone">
+                        ...
+                    </td>
+                    <td>
+                        <select class="explaination">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </td>
+                    <td>
+                        <textarea class="written_explaination"></textarea>
+                    </td>
+                </tr>
+                <tr id="first_row">
+                    <td>
+                        <textarea class="relationship" onkeyup="updateValue(this, this.value)"></textarea>
+                    </td>
+                    <td>
+                        <textarea class="variable_name" onkeyup="updateVariables()"></textarea>
+                    </td>
+                    <td class="output" id="outputZone">
+                        ...
+                    </td>
+                    <td>
+                        <select class="explaination">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </td>
+                    <td>
+                        <textarea class="written_explaination"></textarea>
+                    </td>
+                </tr>
+            </tbody>
         </table>
 
         <button class="add_row" id="add_row" onclick="addRow()">+</button>
-        <button class="remove_row" id="remove_row" onclick="removeRow()">-</button>
-        <button class="parse_row" id="parse_row" onclick="solve(document.getElementById('testarea').value)">parse</button>
+        <button class="remove_row" id="remove_row" onclick="
+            removeRow(); 
+            if(getRow().id === 'first_row'){ 
+                this.setAttribute('disabled', 'true');
+            }else{
+                this.removeAttribute('disabled');
+            }"
+        >-</button>
     </body>
 </html>
