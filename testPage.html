@@ -1,5 +1,14 @@
 <html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.1/underscore-umd-min.js"></script>
+        <script src="scripts.js"></script>
+        
+    </head>
+    
+
     <script>
+
         //adds a row to the table of ID = responce_table
         function addRow(){
             const table = document.getElementById("responce_table");
@@ -70,6 +79,7 @@
 
         function updateValue(button, text){
             button.parentElement.parentElement.children[2].textContent = solve(text);
+            button.parentElement.parentElement.children[3].textContent = solveUnits(text);
         }
 
         //updates all the user-defined variables
@@ -80,25 +90,27 @@
                 var namer = namers[i];
                 var text = namer.parentElement.parentElement.children[1].children[0].value;
                 var value = namer.parentElement.parentElement.children[2].textContent;
+                var units = namer.parentElement.parentElement.children[3].textContent;
                 if(text.length > 0){
                     value = parseFloat(value);
-                    vars.push([namer.value, value]);
+                    vars.push([namer.value, value, units]);
                 }
             }
             console.log(vars);
             variables = vars;
         }
 
-       var baseVariables = [["v",60],["d",60]];
-       var variables = [["v",60],["d",60]];
+       var baseVariables = [
+           ["v",60, new unit(["miles"],["hour"])],
+           ["d",60, new unit(["feet"],[])]
+        ];
+       var variables = [
+           ["v",60, new unit(["miles"],["hour"])],
+           ["d",60, new unit(["feet"],[])]
+        ];
     </script>
 
-    <script src="scripts.js"></script>
-
-    <head>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-
-    </head>
+    
 
     <body>
         <p class="title">
@@ -131,7 +143,9 @@
                     <!--the output is stroed in this variable-->
                     <th>Value Name</th>
                     <!--This is the value of that variable-->
-                    <th>Value</th>
+                    <th>Value</th>  
+                    <!--This is the units of that variable-->
+                    <th>Units</th>
                     <!--Select a rule that makes this make sense-->
                     <th>Why?</th>
                     <!--Use YOUR words-->
@@ -146,7 +160,10 @@
                     <td>
                         <textarea class="variable_name" onkeyup="updateVariables()"></textarea>
                     </td>
-                    <td class="output" id="outputZone">
+                    <td class="output">
+                        ...
+                    </td>
+                    <td class="output_units"">
                         ...
                     </td>
                     <td>
@@ -168,7 +185,10 @@
                     <td>
                         <textarea class="variable_name" onkeyup="updateVariables()"></textarea>
                     </td>
-                    <td class="output" id="outputZone">
+                    <td class="output">
+                        ...
+                    </td>
+                    <td class="output_units"">
                         ...
                     </td>
                     <td>

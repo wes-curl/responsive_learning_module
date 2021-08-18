@@ -1,3 +1,75 @@
+class variable{
+    constructor(name, value, units) {
+        this.name = name;
+        this.value = value;
+        this.units = units;
+    }
+
+    set setValue(value){
+        this.value = value;
+    }
+}
+
+class unit{
+    constructor(top, bottom){
+        this.top = top;
+        this.bottom = bottom;
+        this.simplify();
+    }
+
+    simplify(){
+        if(this.top != null && this.bottom != null){
+            for(var i = 0; i < this.top.length; i++){
+                var j = this.bottom.indexOf(this.top[i]);
+                if(j != -1){
+                    this.bottom.splice(j,1);
+                    this.top.splice(i,1);
+                }
+            }
+            for(var l = 0; l < this.bottom.length; l++){
+                var m = this.bottom.indexOf(this.top[l]);
+                if(m != -1){
+                    this.top.splice(m,1);
+                    this.bottom.splice(l,1);
+                }
+            }
+            this.top.sort();
+            this.bottom.sort();
+        }
+    }
+
+    addTop(unit){
+        this.top.push(unit);
+        this.simplify();
+    }
+
+    addBottom(unit){
+        this.bottom.push(unit);
+        this.simplify();
+    }
+
+    toString(){
+        if(this.top.length > 0){
+            var output = this.top[0].toString();
+            for(var i = 1; i < this.top.length; i++){
+                output = output.concat(" ",this.top[i].toString());
+            }
+        }
+
+        if(this.bottom.length > 0){
+            output += " per";
+            for(var j = 0; j < this.bottom.length; j++){
+                output = output.concat(" ",this.bottom[j].toString());
+            }
+        }
+
+        if(this.top.length == 0 && this.bottom.length == 0){
+            return "no units";
+        }
+        return output;
+    }
+}
+
 //takes a string and returns an array of tokens
 function tokenize(text){
     var outputQueue = new Array();
@@ -35,6 +107,66 @@ function tokenize(text){
     return outputQueue;
 }
 
+var findtoken;
+function solveUnits(input){
+    //get the equation
+    var equation = parse(input);
+    //turn into the units required
+    for(var i = 0; i < equation.length; i++){
+        //constants have no units
+        if(isValue(equation[i])){
+            equation[i] = new unit([],[]);
+        }
+        //variables have fixed units
+        if(isVariable(equation[i])){
+            findtoken = equation[i];
+            var units = variables.find(istoken)[2];
+            equation[i] = units;
+        }
+    }
+    var output = evaluateUnits(equation);
+    console.log(output);
+    if(output != null){
+        return output.toString();
+    } else {
+        return "N/A";
+    }
+    
+}
+
+function applyUnits(operator, a, b){
+    switch(operator){
+        case "+":
+        case "-":
+            console.assert(_.isEqual(a,b));
+            return a;
+        case "*":
+            return new unit(a.top.concat(b.top), a.bottom.concat(b.bottom));
+        case "/":
+            return new unit(a.top.concat(b.bottom), a.bottom.concat(b.top));
+    }
+}
+
+//solves reverse polish notation problems in terms of UNITS
+function evaluateUnits(tokens){
+    var stack = [];
+    for (var i = 0; i < tokens.length; i++) {
+        var token = tokens[i];
+        if (isOperator(token)) {
+            var number1 = stack.pop();
+            var number2 = stack.pop();
+            if(number1 == null || number2 == null){
+                return null;
+            }
+            stack.push( applyUnits(token, number2, number1) );
+        } else {
+            //push the units
+            stack.push( tokens[i] );
+        }
+    }
+    return stack.pop();
+}
+
 function isLeftParenthesis(character){
     return "(" === character;
 }
@@ -62,8 +194,6 @@ function isValue(token){
     return isNumber(token);
 }
 
-
-var findtoken;
 function isVariable(token){
     findtoken = token;
     return variables.find(istoken) != null;
@@ -121,8 +251,12 @@ function leftAssociative(token){
 
 //finds the value of a string variable
 function numerize(token){
-    findtoken = token;
-    return variables.find(istoken)[1];
+    if(isNaN(parseInt(token))){
+        findtoken = token;
+        return variables.find(istoken)[1];
+    } else {
+        return(parseInt(token));
+    }
 }
 
 //parses the text and gives a numerical answer
@@ -141,8 +275,7 @@ function parse(text){
     //     - push the numerical value
             outputQueue.push(parseFloat(token));
         }else if(isVariable(token)){
-            console.log("variable becomes " + numerize(token));
-            outputQueue.push(numerize(token));
+            outputQueue.push(token);
         }else if(isFunction(token)){
             outputQueue.push(token);
         } else if(isOperator(token)){
@@ -228,7 +361,7 @@ function evaluate(tokens){
             var number2 = stack.pop();
             stack.push( apply(token, number2, number1) );
         } else {
-            stack.push( parseInt(tokens[i], 10) );
+            stack.push( numerize(tokens[i]) );
         }
     }
     return stack.pop();
