@@ -70,6 +70,13 @@ class unit{
     }
 }
 
+//standard unit conversions:
+var standardConversions = [
+    new variable("feet per mile", 5280, new unit(["feet"], ["miles"])),
+    new variable("minutes per hour", 60, new unit(["minutes"], ["hours"])),
+    new variable("seconds per minute", 60, new unit(["seconds"], ["minutes"]))
+]
+
 //takes a string and returns an array of tokens
 function tokenize(text){
     var outputQueue = new Array();
@@ -80,11 +87,15 @@ function tokenize(text){
     //for each character
     for(var i = 0; i < text.length; i++){
         var character = text[i];
-        //if it isn't whitespace
-        if(!(character === " ")){
+        //if it isn't leading whitespace
+        if(!(character === " " && token.length == 0)){
             //if it isn't text
             if((isLeftParenthesis(character) || isRightParenthesis(character) || isOperator(character))){
                 if(token.length > 0){
+                    //if there is a trailing space:
+                    if(token[token.length - 1] === " "){
+                        token = token.substring(0, token.length - 1);
+                    }
                     //push all the text that came before it
                     outputQueue.push(token);
                     token = "";
@@ -103,7 +114,6 @@ function tokenize(text){
     if(token.length > 0){
         outputQueue.push(token);
     }
-    console.log(outputQueue);
     return outputQueue;
 }
 
@@ -120,14 +130,13 @@ function solveUnits(input){
         //variables have fixed units
         if(isVariable(equation[i])){
             findtoken = equation[i];
-            var units = variables.find(istoken)[2];
+            var units = variables.find(istoken).units;
             equation[i] = units;
         }
     }
     var output = evaluateUnits(equation);
-    console.log(output);
     if(output != null){
-        return output.toString();
+        return output;
     } else {
         return "N/A";
     }
@@ -200,7 +209,7 @@ function isVariable(token){
 }
 
 function istoken(item){
-    return item[0] == findtoken;
+    return item.name === findtoken;
 }
 
 function isNumber(token){
@@ -253,7 +262,8 @@ function leftAssociative(token){
 function numerize(token){
     if(isNaN(parseInt(token))){
         findtoken = token;
-        return variables.find(istoken)[1];
+        
+        return variables.find(istoken).value;
     } else {
         return(parseInt(token));
     }
@@ -376,9 +386,9 @@ function solve(text){
         case "error":
             return "N/A"
         default:
-            console.log(shunted);
-            console.log(evaluate(shunted));
             return evaluate(shunted);
     }
 
+
+    
 }
