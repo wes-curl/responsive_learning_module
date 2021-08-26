@@ -6,111 +6,9 @@
         
     </head>
     
+    <script src="classes.js"></script>
 
     <script>
-
-        //adds a row to the table of ID = responce_table
-        function addRow(){
-            const table = document.getElementById("responce_table");
-
-            //if there is no hidden element to unhide
-            if(getHiddenRow() == null){
-                const row = document.getElementById("template");
-                let new_row = row.cloneNode(true);
-                new_row.removeAttribute("hidden");
-                new_row.id = "";
-                table.children[1].appendChild(new_row);
-            } else {
-                unhideRow();
-            }
-        }
-
-        //hides the bottom visible row of the table
-        function removeRow(){
-            const table = document.getElementById("responce_table");
-            var children = table.children[1].children;
-            console.log(children);
-            for (var i = children.length - 1; i >= 0 ; i--) {
-                var tableChild = children[i];
-                // Do stuff
-                if(tableChild.getAttribute("hidden") == null){
-                    tableChild.setAttribute("hidden", 1);
-                    return 0;
-                }
-            }   
-        }
-
-        //returns a tr element if there is a hidden row. This element is the FIRST hidden row. 
-        //Otherwise, it returns NULL
-        function getHiddenRow(){
-            const table = document.getElementById("responce_table");
-            var children = table.children[1].children;
-            for (var i = 0; i < children.length; i++) {
-                var tableChild = children[i];
-                // Do stuff
-                if(tableChild.getAttribute("hidden") != null && tableChild.id != "template"){
-                    return tableChild;
-                }
-            }   
-            return null;
-        }
-
-        //returns the last unhidden row
-        function getRow(){
-            const table = document.getElementById("responce_table").childNodes[3];
-            var children = table.children;
-            var last = null;
-            for (var i = 0; i < children.length; i++) {
-                var tableChild = children[i];
-                // Do stuff
-                if(tableChild.getAttribute("hidden") == null && tableChild.tagName === "TR"){
-                    last = tableChild;
-                }
-            }   
-            
-            return last;
-        }
-
-        //unhides the first hidden row
-        function unhideRow(){
-            const row = getHiddenRow();
-            row.removeAttribute("hidden");
-        }
-
-        function updateValue(button, text){
-            button.parentElement.parentElement.children[2].textContent = solve(text);
-            button.parentElement.parentElement.children[3].textContent = solveUnits(text).toString();
-        }
-
-        //updates all the user-defined variables
-        function updateVariables(){
-            var namers = document.getElementsByClassName("variable_name");
-            var vars = [...baseVariables];
-            for(var i = 0; i < namers.length; i++){
-                var namer = namers[i];
-                var text = namer.parentElement.parentElement.children[1].children[0].value;
-                var value = namer.parentElement.parentElement.children[2].textContent;
-                debugger;
-                var units = solveUnits(namer.parentElement.parentElement.children[0].children[0].value);
-                //debugger;
-                if(text.length > 0 && notIn(text, vars)){
-                    value = parseFloat(value);
-                    vars.push(new variable(namer.value, value, units));
-                }
-            }
-            console.log(vars);
-            variables = vars;
-        }
-
-        function notIn(name, variables){
-            for(var i = 0; i < variables.length; i++){
-                if(variables[i].name === name){
-                    return false;
-                }
-            }
-            return true;
-        }
-
         var baseVariables = [...standardConversions,
             new variable("v",60, new unit(["miles"],["hours"])),
             new variable("d",60, new unit(["feet"],[]))
@@ -125,6 +23,7 @@
     
 
     <body>
+        <script src="scripts.js" defer></script>
         <p class="title">
             This is a Mockup of a Potential Page
         </p>
@@ -190,6 +89,7 @@
                         <textarea class="written_explaination"></textarea>
                     </td>
                 </tr>
+
                 <tr id="first_row">
                     <td>
                         <textarea class="relationship" onkeyup="updateVariables();updateValue(this, this.value);"></textarea>
@@ -200,7 +100,7 @@
                     <td class="output">
                         ...
                     </td>
-                    <td class="output_units"">
+                    <td class="output_units">
                         ...
                     </td>
                     <td>

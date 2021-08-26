@@ -1,82 +1,3 @@
-class variable{
-    constructor(name, value, units) {
-        this.name = name;
-        this.value = value;
-        this.units = units;
-    }
-
-    set setValue(value){
-        this.value = value;
-    }
-}
-
-class unit{
-    constructor(top, bottom){
-        this.top = top;
-        this.bottom = bottom;
-        this.simplify();
-    }
-
-    simplify(){
-        if(this.top != null && this.bottom != null){
-            for(var i = 0; i < this.top.length; i++){
-                var j = this.bottom.indexOf(this.top[i]);
-                if(j != -1){
-                    this.bottom.splice(j,1);
-                    this.top.splice(i,1);
-                }
-            }
-            for(var l = 0; l < this.bottom.length; l++){
-                var m = this.bottom.indexOf(this.top[l]);
-                if(m != -1){
-                    this.top.splice(m,1);
-                    this.bottom.splice(l,1);
-                }
-            }
-            this.top.sort();
-            this.bottom.sort();
-        }
-    }
-
-    addTop(unit){
-        this.top.push(unit);
-        this.simplify();
-    }
-
-    addBottom(unit){
-        this.bottom.push(unit);
-        this.simplify();
-    }
-
-    toString(){
-        if(this.top.length > 0){
-            var output = this.top[0].toString();
-            for(var i = 1; i < this.top.length; i++){
-                output = output.concat(" ",this.top[i].toString());
-            }
-        }
-
-        if(this.bottom.length > 0){
-            output += " per";
-            for(var j = 0; j < this.bottom.length; j++){
-                output = output.concat(" ",this.bottom[j].toString());
-            }
-        }
-
-        if(this.top.length == 0 && this.bottom.length == 0){
-            return "no units";
-        }
-        return output;
-    }
-}
-
-//standard unit conversions:
-var standardConversions = [
-    new variable("feet per mile", 5280, new unit(["feet"], ["miles"])),
-    new variable("minutes per hour", 60, new unit(["minutes"], ["hours"])),
-    new variable("seconds per minute", 60, new unit(["seconds"], ["minutes"]))
-]
-
 //takes a string and returns an array of tokens
 function tokenize(text){
     var outputQueue = new Array();
@@ -121,6 +42,9 @@ var findtoken;
 function solveUnits(input){
     //get the equation
     var equation = parse(input);
+    if(typeof(equation) == "string"){
+        return "N/A";
+    }
     //turn into the units required
     for(var i = 0; i < equation.length; i++){
         //constants have no units
@@ -205,7 +129,8 @@ function isValue(token){
 
 function isVariable(token){
     findtoken = token;
-    return variables.find(istoken) != null;
+    var output = variables.find(istoken) != null;
+    return output;
 }
 
 function istoken(item){
@@ -224,9 +149,11 @@ function isNumber(token){
     return true;
 }
 
+var functions = ["sin", "cos", "tan", "arcsin", "arccos", "arctan"];
+
 //is the token a function?
 function isFunction(token){
-    return false;
+    return functions.findIndex(function(V){return V == token}) > -1;
 }
 
 function precedence(token){
@@ -260,6 +187,7 @@ function leftAssociative(token){
 
 //finds the value of a string variable
 function numerize(token){
+    debugger;
     if(isNaN(parseInt(token))){
         findtoken = token;
         
@@ -332,14 +260,16 @@ function parse(text){
                 outputQueue.push(operatorStack.pop());
             }
         } else {
-            console.error("invalid token!");
+            return("invalid token!");
         }
     }
     // while there are tokens on the operator stack:
     while(operatorStack.length > 0){
     //     {assert the operator on top of the stack is not a (left) parenthesis}
     //     pop the operator from the operator stack onto the output queue
-        console.assert(!isLeftParenthesis(operatorStack[operatorStack.length - 1])); 
+        if(isLeftParenthesis(operatorStack[operatorStack.length - 1])){
+            return "invalid-parenthetical error";
+        }
         outputQueue.push(operatorStack.pop());
     }
 
@@ -361,6 +291,24 @@ function apply(operator, a, b){
     }
 }
 
+//takes in a function name and a value and applies the function to that value
+function applyFunction(func, a){
+    switch(func){
+        case "sin":
+            return Math.sin(a);
+        case "cos":
+            return Math.cos(a);
+        case "tan":
+            return Math.tan(a);
+        case "arccos":
+            return Math.acos(a);
+        case "arcsin":
+            return Math.asin(a);
+        case "arctan":
+            return Math.atan(a);
+    }
+}
+
 //solves reverse polish notation problems
 function evaluate(tokens){
     var stack = [];
@@ -370,6 +318,9 @@ function evaluate(tokens){
             var number1 = stack.pop();
             var number2 = stack.pop();
             stack.push( apply(token, number2, number1) );
+        } else if(isFunction(token)){
+            var number = stack.pop();
+            stack.push( applyFunction(token, number) );
         } else {
             stack.push( numerize(tokens[i]) );
         }
@@ -383,12 +334,116 @@ function solve(text){
     switch(shunted){
         case "invalid-parenthetical error":
             return "invalid parentheses"
+        case "invalid token!":
+            return "N/A";
         case "error":
             return "N/A"
         default:
             return evaluate(shunted);
+    }    
+}
+
+
+//adds a row to the table of ID = responce_table
+function addRow(){
+    const table = document.getElementById("responce_table");
+
+    //if there is no hidden element to unhide
+    if(getHiddenRow() == null){
+        const row = document.getElementById("template");
+        let new_row = row.cloneNode(true);
+        new_row.removeAttribute("hidden");
+        new_row.id = "";
+        table.children[1].appendChild(new_row);
+    } else {
+        unhideRow();
     }
+}
 
+//hides the bottom visible row of the table
+function removeRow(){
+    const table = document.getElementById("responce_table");
+    var children = table.children[1].children;
+    console.log(children);
+    for (var i = children.length - 1; i >= 0 ; i--) {
+        var tableChild = children[i];
+        // Do stuff
+        if(tableChild.getAttribute("hidden") == null){
+            tableChild.setAttribute("hidden", 1);
+            return 0;
+        }
+    }   
+}
 
+//returns a tr element if there is a hidden row. This element is the FIRST hidden row. 
+//Otherwise, it returns NULL
+function getHiddenRow(){
+    const table = document.getElementById("responce_table");
+    var children = table.children[1].children;
+    for (var i = 0; i < children.length; i++) {
+        var tableChild = children[i];
+        // Do stuff
+        if(tableChild.getAttribute("hidden") != null && tableChild.id != "template"){
+            return tableChild;
+        }
+    }   
+    return null;
+}
+
+//returns the last unhidden row
+function getRow(){
+    const table = document.getElementById("responce_table").childNodes[3];
+    var children = table.children;
+    var last = null;
+    for (var i = 0; i < children.length; i++) {
+        var tableChild = children[i];
+        // Do stuff
+        if(tableChild.getAttribute("hidden") == null && tableChild.tagName === "TR"){
+            last = tableChild;
+        }
+    }   
     
+    return last;
+}
+
+//unhides the first hidden row
+function unhideRow(){
+    const row = getHiddenRow();
+    row.removeAttribute("hidden");
+}
+
+function updateValue(button, text){
+    button.parentElement.parentElement.children[2].textContent = solve(text);
+    button.parentElement.parentElement.children[3].textContent = solveUnits(text).toString();
+}
+
+//updates all the user-defined variables
+function updateVariables(){
+    var namers = document.getElementsByClassName("variable_name");
+    var vars = [...baseVariables];
+    for(var i = 0; i < namers.length; i++){
+        var namer = namers[i];
+        var text = namer.parentElement.parentElement.children[1].children[0].value;
+        var value = namer.parentElement.parentElement.children[2].textContent;
+        var units = solveUnits(namer.parentElement.parentElement.children[0].children[0].value);
+        if(text.length > 0 && notIn(text, vars)){
+            value = parseFloat(value);
+            vars.push(new variable(namer.value, value, units));
+        }
+    }
+    variables = vars;
+}
+
+function notIn(name, variables){
+    for(var i = 0; i < variables.length; i++){
+        if(variables[i].name === name){
+            return false;
+        }
+    }
+    return true;
+}
+
+//returns true if there is a variable with the name "answer"
+function answerPresent(){
+    return !notIn("answer", variables);
 }
