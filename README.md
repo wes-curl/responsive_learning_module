@@ -3,8 +3,11 @@ Notes to self:
 
 
 Todo:
-general task                specific subtask(s)                         opened                closed (or status)  notes
-Format text better          subtext (v_0)                               (__:__ __/__/____)    (__:__ __/__/____)  ____
+general task                specific subtask(s)                         opened                closed (or status)  
+
+Bugfixes                    make remove column button turn on again
+
+Format text better          subtext (v_0)                               
                             supertext (v^2)
                             scientific notation in value display
                                 (for numbers > 1000 and < 0.01)
@@ -13,14 +16,18 @@ Unit reform                 have computer shorten common units (m/s)?
                             add new unit conversions
                             add more supported units
 
-Overhaul...                 You're gonna have to fix how values and 
+Overhaul...                 You're gonna have to fix how values and     (16:41 08/31/2021)  (17:31 08/31/2021)
                                 units are updated out of synch
-                            Have it so that units change when the
+                            Have it so that units change when the       (16:41 08/31/2021)  (17:31 08/31/2021)
                                 variables describing them change.
                                 You know the issue.
-                            Also, add a listener to trigger the 
+                            Make it so that the numbers are stored      (16:41 08/31/2021)  (17:31 08/31/2021)
+                                outside of text. HTML fields
+                                should be display only.
+                            Also, add a listener to trigger the         (16:41 08/31/2021)  (17:31 08/31/2021)
                                 updates. Use what you learned from
-                                the ALM work
+                                the ALM work - turned out to be
+                                irrelevant
 
 PHP                         create a PHP page to manage user work
 

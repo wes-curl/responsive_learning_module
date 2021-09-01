@@ -39,6 +39,7 @@ function tokenize(text){
 }
 
 var findtoken;
+//finds the units of any input text equation
 function solveUnits(input){
     //get the equation
     var equation = parse(input);
@@ -66,7 +67,7 @@ function solveUnits(input){
     }
     
 }
-
+//performs an operation on two text units (ex: miles and feet) and returns the unit output
 function applyUnits(operator, a, b){
     switch(operator){
         case "+":
@@ -79,7 +80,6 @@ function applyUnits(operator, a, b){
             return new unit(a.top.concat(b.bottom), a.bottom.concat(b.top));
     }
 }
-
 //solves reverse polish notation problems in terms of UNITS
 function evaluateUnits(tokens){
     var stack = [];
@@ -100,14 +100,15 @@ function evaluateUnits(tokens){
     return stack.pop();
 }
 
+//returns whether some character is "(." Remove?
 function isLeftParenthesis(character){
     return "(" === character;
 }
-
+//returns whether some character is ")." Remove?
 function isRightParenthesis(character){
     return ")" === character;
 }
-
+//returns whether a character is an operator
 function isOperator(character){
     var output =
     "+" === character
@@ -121,22 +122,24 @@ function isOperator(character){
     "^" === character;
     return output;
 }
-
 //is the token a variable or a number?
 function isValue(token){
     return isNumber(token);
 }
 
+//is the token a variable?
 function isVariable(token){
     findtoken = token;
     var output = variables.find(istoken) != null;
     return output;
 }
 
+//a dummy function to find a token in a list
 function istoken(item){
     return item.name === findtoken;
 }
 
+//returns whether a token is a number
 function isNumber(token){
     var code, i, len;
 
@@ -149,6 +152,7 @@ function isNumber(token){
     return true;
 }
 
+//all the functions the calculator can run
 var functions = ["sin", "cos", "tan", "arcsin", "arccos", "arctan"];
 
 //is the token a function?
@@ -156,6 +160,7 @@ function isFunction(token){
     return functions.findIndex(function(V){return V == token}) > -1;
 }
 
+//determines the precedence level of a token (given that it is an operator)
 function precedence(token){
     switch(token){
         case ")":
@@ -176,6 +181,7 @@ function precedence(token){
     return 1;
 }
 
+//determines whether an operator is left associative
 function leftAssociative(token){
     var output =
         token === "+" ||
@@ -187,7 +193,6 @@ function leftAssociative(token){
 
 //finds the value of a string variable
 function numerize(token){
-    debugger;
     if(isNaN(parseInt(token))){
         findtoken = token;
         
@@ -276,6 +281,7 @@ function parse(text){
     return outputQueue;
 }
 
+//performs an operation (operator) on a and b
 function apply(operator, a, b){
     switch(operator){
         case "+":
@@ -343,7 +349,6 @@ function solve(text){
     }    
 }
 
-
 //adds a row to the table of ID = responce_table
 function addRow(){
     const table = document.getElementById("responce_table");
@@ -372,7 +377,7 @@ function removeRow(){
             tableChild.setAttribute("hidden", 1);
             return 0;
         }
-    }   
+    } 
 }
 
 //returns a tr element if there is a hidden row. This element is the FIRST hidden row. 
@@ -412,6 +417,43 @@ function unhideRow(){
     row.removeAttribute("hidden");
 }
 
+//updates all values and variables on the form
+function updateAll(){
+    debugger;
+    //all the rows
+    var allRows = document.getElementById("responce_table").children[1].getElementsByClassName("row");
+    //remove the hidden rows
+    var rows = [];
+    for(var i = 0; i < allRows.length; i++){
+        if(!(allRows[i].id === "template")){
+            if(allRows[i].hasAttribute("hidden")){
+                break;
+            }
+            rows.push(allRows[i]);
+        }
+    }
+    //all the base variables are put into the main variable array
+    variables = [...baseVariables];
+    //for every row:
+    for(var i = 0; i < rows.length; i++){
+        var row = rows[i];
+        var rowText = row.children[0].children[0].value;
+        //get the value
+        var value = solve(rowText);
+        //put the value in display
+        row.children[2].textContent = value;
+        //get the units
+        var units = solveUnits(rowText);
+        row.children[3].textContent = units.toString();
+        //store the value in its variable (if one is defined)
+        if(row.children[1].children[0].valuet != ""){
+            var text = row.children[1].children[0].value;
+            variables.push(new variable(text, value, units));
+        }
+    }
+}
+/*
+//updates the value of one value section
 function updateValue(button, text){
     button.parentElement.parentElement.children[2].textContent = solve(text);
     button.parentElement.parentElement.children[3].textContent = solveUnits(text).toString();
@@ -433,7 +475,7 @@ function updateVariables(){
     }
     variables = vars;
 }
-
+*/
 function notIn(name, variables){
     for(var i = 0; i < variables.length; i++){
         if(variables[i].name === name){

@@ -63,13 +63,13 @@
                     <th>Explain.</th>
                 </tr>
             </thead>
-                <tbody>
-                <tr id="template" hidden="true">
+            <tbody>
+                <tr id="template" hidden="true" class ="row">
                     <td>
-                        <textarea class="relationship" onkeyup="updateVariables();updateValue(this, this.value);"></textarea>
+                        <textarea class="relationship" onkeyup="updateAll()"></textarea>
                     </td>
                     <td>
-                        <textarea class="variable_name" onkeyup="updateVariables()"></textarea>
+                        <textarea class="variable_name" onkeyup="updateAll()"></textarea>
                     </td>
                     <td class="output">
                         ...
@@ -90,12 +90,12 @@
                     </td>
                 </tr>
 
-                <tr id="first_row">
+                <tr id="first_row" class="row">
                     <td>
-                        <textarea class="relationship" onkeyup="updateVariables();updateValue(this, this.value);"></textarea>
+                        <textarea class="relationship" onkeyup="updateAll()"></textarea>
                     </td>
                     <td>
-                        <textarea class="variable_name" onkeyup="updateVariables()"></textarea>
+                        <textarea class="variable_name" onkeyup="updateAll()"></textarea>
                     </td>
                     <td class="output">
                         ...
@@ -127,5 +127,6 @@
                 this.removeAttribute('disabled');
             }"
         >-</button>
+
     </body>
 </html>
